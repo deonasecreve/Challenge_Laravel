@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ExamUserStatus;
 use App\Models\LoginRoles;
 use App\Models\User;
+use App\Models\Exam;
 
 class HomeController extends Controller
 {
@@ -19,6 +20,21 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function edit(Request $request, $id)
+    {
+        if (Auth::user()->role != LoginRoles::TEACHER) {
+            $request->session()->flash("status", "Je moet een leraar zijn om te bewerken");
+            return redirect()->route("home");
+        }
+
+        $results = Exam::find($id)
+            ->users()
+            ->withPivot("accepted", "result")
+            ->get();
+
+        return view('edit', ['results' => $results]);
     }
 
     public function exam(Request $request, $id, $status)
@@ -53,9 +69,10 @@ class HomeController extends Controller
     {
         if (Auth::user()->role == LoginRoles::STUDENT) {
             $exams = User::find(Auth::user()->id)->exams()->withPivot("accepted", "id")->get();
-            return view('student', array('exams' => $exams, 'status' => new ExamUserStatus()));
+            return view('student', array('user' => Auth::user(), 'exams' => $exams, 'status' => new ExamUserStatus()));
         }  else {
-            return view('teacher');
+            $exams = Exam::all();
+            return view('teacher', array('exams'=>$exams));
         }
     }
 }
