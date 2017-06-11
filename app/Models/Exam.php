@@ -21,5 +21,8 @@ class Exam extends Model
 
     protected $guarded = [];
 
-        
+    public function exams() 
+    {
+        return $this->belongsToMany("App\Models\User", "exam_user");
+    }   
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\LoginRoles;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -27,7 +28,9 @@ class HomeController extends Controller
     public function index()
     {
         if (Auth::user()->role == LoginRoles::STUDENT) {
-            return view('student');
+            // $exams = Auth::user()->exams;
+            $exams = User::find(Auth::user()->id)->exams()->get();
+            return view('student', ['exams' => $exams]);
         }  else {
             return view('teacher');
         }

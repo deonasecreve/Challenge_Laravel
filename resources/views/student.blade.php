@@ -9,6 +9,19 @@
 
                 <div class="panel-body">
                     Je bent student
+                    <table class="table table-bordered table-hover">
+					    <tr>
+					        <th>Examen</th>
+					        <th>Datum</th>
+					    </tr>
+
+					    @foreach ($exams as $exam)
+					        <tr>
+					            <td>{{ $exam->name }}</td>
+					            <td>{{ $exam->time }}</td>
+					        </tr>
+					    @endforeach
+					</table>
                 </div>
             </div>
         </div>
