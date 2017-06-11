@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 use App\Models\ExamUserStatus;
 use App\Models\LoginRoles;
@@ -22,6 +23,41 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    public function updateStudent(Request $request, $id)
+    {
+        if (Auth::user()->role != LoginRoles::TEACHER) {
+            $request->session()->flash("status", "Je moet een leraar zijn om te bewerken");
+            return redirect()->route("home");
+        }
+
+        $user = User:: find($id);
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+
+        if ($request->input('password')){
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        $user->save();
+        return redirect()->route("home");
+    }
+
+    public function newStudent()
+    {
+        Auth::logout();
+        return view("auth/register");
+    }
+
+    public function editStudent(Request $request, $id)
+    {
+        if (Auth::user()->role != LoginRoles::TEACHER) {
+            $request->session()->flash("status", "Je moet een leraar zijn om te bewerken");
+            return redirect()->route("home");
+        }
+
+        return view("editStudent", ['id'=> $id, 'student' => User:: find($id)]);  
+    }
+
     public function edit(Request $request, $id)
     {
         if (Auth::user()->role != LoginRoles::TEACHER) {
@@ -29,12 +65,10 @@ class HomeController extends Controller
             return redirect()->route("home");
         }
 
-        $results = Exam::find($id)
-            ->users()
-            ->withPivot("accepted", "result")
-            ->get();
+        $exam = Exam::find($id);
+        $results = $exam->users()->withPivot("accepted", "result")->get();
 
-        return view('edit', ['results' => $results]);
+        return view('edit', ['exam' => $exam, 'results' => $results]);
     }
 
     public function exam(Request $request, $id, $status)
@@ -72,7 +106,8 @@ class HomeController extends Controller
             return view('student', array('user' => Auth::user(), 'exams' => $exams, 'status' => new ExamUserStatus()));
         }  else {
             $exams = Exam::all();
-            return view('teacher', array('exams'=>$exams));
+            $students = User::where('role', LoginRoles::STUDENT)->get();
+            return view('teacher', array('exams'=>$exams,'students'=>$students));
         }
     }
 }

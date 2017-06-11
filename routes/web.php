@@ -20,6 +20,9 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/exam/{id}/{status}', 'HomeController@exam')->name('exam');
 Route::get('/edit/{id}', 'HomeController@edit')->name('edit');
+Route::get('/edit/student/{id}', 'HomeController@editStudent')->name('editStudent');
+Route::get('/new/student', 'HomeController@newStudent')->name('newStudent');
+Route::post('/update/student/{id}', 'HomeController@updateStudent')->name('updateStudent');
 
 Auth::routes();
 

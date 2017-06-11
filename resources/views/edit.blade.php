@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Docent</div>
+                <div class="panel-heading">Examen: {{ $exam->name }} (Docent)</div>
 
 
                 <div class="panel-body">
